@@ -2,230 +2,2203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0b2418">
 <title>DPL — Season 02</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    --green: #071c12;
+    --green2: #0c2b1c;
+    --green3: #123d28;
+    --cream: #f2ead8;
+    --cream2: #d9ccb2;
+    --gold: #c9a65b;
+    --white: #fffdf7;
+    --muted: #9b9a8f;
+    --red: #d85c4a;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--green);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+button {
+    font-family: inherit;
+}
+
+.screen {
+    min-height: 100svh;
+    width: 100%;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.screen.active {
+    display: block;
+    animation: screenIn .65s ease both;
+}
+
+@keyframes screenIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   BROADCAST BACKGROUND
+========================= */
+
+.broadcast-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .15;
+    background-image:
+        linear-gradient(rgba(242,234,216,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(242,234,216,.18) 1px, transparent 1px);
+    background-size: 38px 38px;
+}
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: .035;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        #fff 4px
+    );
+}
+
+.noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================
+   COMMON ELEMENTS
+========================= */
+
+.container {
+    width: min(100% - 34px, 1050px);
+    margin: auto;
+    position: relative;
+    z-index: 2;
+}
+
+.topbar {
+    padding: 22px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.live {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #cf5948;
+    box-shadow: 0 0 10px rgba(207,89,72,.7);
+    animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+    50% { opacity: .3; }
+}
+
+.eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.title {
+    font-size: clamp(42px, 12vw, 110px);
+    line-height: .85;
+    font-weight: 900;
+    letter-spacing: -5px;
+    text-transform: uppercase;
+}
+
+.subtitle {
+    margin-top: 15px;
+    font-size: 12px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cream2);
+}
+
+.gold {
+    color: var(--gold);
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.section-title {
+    font-size: clamp(34px, 8vw, 72px);
+    line-height: .95;
+    letter-spacing: -3px;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+.section-intro {
+    margin-top: 18px;
+    color: var(--cream2);
+    line-height: 1.7;
+    max-width: 650px;
+}
+
+.btn {
+    border: 1px solid rgba(201,166,91,.7);
+    background: transparent;
+    color: var(--cream);
+    padding: 15px 22px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 11px;
+    transition: .25s ease;
+}
+
+.btn:hover,
+.btn:active {
+    background: var(--gold);
+    color: var(--green);
+}
+
+.next-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 42px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(242,234,216,.12);
+}
+
+.next-label {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.page-number {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(242,234,216,.3);
+    font-size: 10px;
+}
+
+/* =========================
+   SCREEN 1
+========================= */
+
+#opening {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+}
+
+.opening-inner {
+    padding: 60px 0;
+}
+
+.dpl-small {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 22px;
+}
+
+.opening-title {
+    font-size: clamp(72px, 23vw, 220px);
+    line-height: .72;
+    font-weight: 900;
+    letter-spacing: -9px;
+}
+
+.season {
+    margin-top: 28px;
+    font-size: clamp(17px, 4vw, 28px);
+    letter-spacing: 8px;
+    font-weight: 800;
+}
+
+.league-name {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--cream2);
+    letter-spacing: 2px;
+    font-size: 11px;
+}
+
+.archive-status {
+    margin-top: 65px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: rgba(242,234,216,.12);
+    border: 1px solid rgba(242,234,216,.12);
+    max-width: 600px;
+}
+
+.status-cell {
+    padding: 17px;
+    background: rgba(7,28,18,.8);
+}
+
+.status-label {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+.status-value {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.enter-wrap {
+    margin-top: 35px;
+}
+
+/* =========================
+   PLAYER PROFILE
+========================= */
+
+.profile-header {
+    margin-top: 45px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: end;
+}
+
+.jersey {
+    font-size: clamp(80px, 20vw, 160px);
+    line-height: .7;
+    font-weight: 900;
+    color: rgba(201,166,91,.13);
+    letter-spacing: -10px;
+}
+
+.profile-card {
+    margin-top: 40px;
+    border: 1px solid rgba(201,166,91,.35);
+    background: linear-gradient(135deg, rgba(18,61,40,.65), rgba(7,28,18,.85));
+}
+
+.profile-main {
+    padding: 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.data-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 7px;
+}
+
+.data-value {
+    font-size: 17px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.profile-photo {
+    margin: 0 26px 26px;
+    min-height: 170px;
+    border: 1px dashed rgba(201,166,91,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* =========================
+   ATTRIBUTES
+========================= */
+
+.attributes {
+    margin-top: 35px;
+    display: grid;
+    gap: 12px;
+}
+
+.attribute {
+    display: grid;
+    grid-template-columns: 1fr 48px;
+    gap: 12px;
+    align-items: center;
+}
+
+.attribute-name {
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.bar {
+    height: 5px;
+    background: rgba(242,234,216,.1);
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 0;
+    background: var(--gold);
+    transition: width 1.2s cubic-bezier(.2,.7,.2,1);
+}
+
+.rating {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+}
+
+/* =========================
+   SCOUTING
+========================= */
+
+.scout-list {
+    margin-top: 38px;
+    display: grid;
+    gap: 1px;
+    background: rgba(242,234,216,.12);
+}
+
+.scout {
+    padding: 23px;
+    background: rgba(7,28,18,.8);
+    border-left: 2px solid transparent;
+    transition: .3s;
+}
+
+.scout:hover {
+    border-left-color: var(--gold);
+}
+
+.scout-num {
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    margin-bottom: 9px;
+}
+
+.scout-title {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.scout-text {
+    color: var(--cream2);
+    line-height: 1.65;
+    font-size: 13px;
+}
+
+.baby-box {
+    margin-top: 28px;
+    padding: 24px;
+    border: 1px solid rgba(201,166,91,.3);
+    background: rgba(18,61,40,.35);
+    text-align: center;
+}
+
+.baby-output {
+    min-height: 40px;
+    margin-top: 18px;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+}
+
+/* =========================
+   STATISTICS
+========================= */
+
+.stat-grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: rgba(242,234,216,.12);
+}
+
+.big-stat {
+    padding: 25px 20px;
+    background: rgba(7,28,18,.9);
+}
+
+.big-number {
+    font-size: clamp(42px, 12vw, 80px);
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: .9;
+    color: var(--cream);
+}
+
+.big-label {
+    margin-top: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.2px;
+    line-height: 1.5;
+}
+
+.record-list {
+    margin-top: 30px;
+    border-top: 1px solid rgba(242,234,216,.12);
+}
+
+.record {
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(242,234,216,.12);
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    font-size: 12px;
+}
+
+.record span:last-child {
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    text-align: right;
+}
+
+/* =========================
+   INTERNATIONAL
+========================= */
+
+.international {
+    text-align: center;
+    padding-top: 45px;
+}
+
+.eighty {
+    font-size: clamp(110px, 30vw, 260px);
+    line-height: .8;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: -12px;
+}
+
+.message-card {
+    margin: 40px auto 0;
+    max-width: 650px;
+    padding: 35px 25px;
+    border-top: 1px solid rgba(201,166,91,.4);
+    border-bottom: 1px solid rgba(201,166,91,.4);
+}
+
+.message-card h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.message-card p {
+    color: var(--cream2);
+    line-height: 1.8;
+}
+
+/* =========================
+   POETRY
+========================= */
+
+.poem-list {
+    margin-top: 35px;
+    display: grid;
+    gap: 12px;
+}
+
+.poem {
+    border: 1px solid rgba(201,166,91,.25);
+    background: rgba(18,61,40,.3);
+}
+
+.poem-head {
+    padding: 19px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.poem-title {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.poem-number {
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+}
+
+.poem-body {
+    display: none;
+    padding: 0 20px 25px;
+    color: var(--cream2);
+    line-height: 1.9;
+    white-space: pre-line;
+    font-family: Georgia, serif;
+    font-size: 14px;
+}
+
+.poem.open .poem-body {
+    display: block;
+    animation: fade .4s ease;
+}
+
+@keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.timeline {
+    margin-top: 45px;
+    position: relative;
+    padding-left: 24px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(201,166,91,.35);
+}
+
+.event {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+.event::before {
+    content: "";
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    width: 7px;
+    height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(201,166,91,.45);
+}
+
+.event-date {
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 9px;
+}
+
+.event-title {
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.event-text {
+    color: var(--cream2);
+    line-height: 1.75;
+    font-size: 13px;
+}
+
+.turning-point {
+    border: 1px solid rgba(201,166,91,.4);
+    padding: 25px;
+    background: rgba(18,61,40,.4);
+}
+
+/* =========================
+   PHOTO PLACEHOLDER
+========================= */
+
+.photo-placeholder {
+    margin-top: 20px;
+    min-height: 220px;
+    border: 1px dashed rgba(201,166,91,.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.photo-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* =========================
+   TWO YEARS
+========================= */
+
+.scoreboard {
+    margin-top: 40px;
+    border: 1px solid rgba(201,166,91,.35);
+}
+
+.score-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(242,234,216,.1);
+}
+
+.score-row:last-child {
+    border-bottom: none;
+}
+
+.score-name {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.score-value {
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--gold);
+}
+
+/* =========================
+   FINAL BREAK
+========================= */
+
+.final-break {
+    background: var(--cream);
+    color: var(--green);
+    display: none;
+    align-items: center;
+}
+
+.final-break.active {
+    display: flex;
+}
+
+.break-inner {
+    width: min(100% - 38px, 800px);
+    margin: auto;
+    text-align: center;
+}
+
+.break-small {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    margin-bottom: 35px;
+    opacity: .55;
+}
+
+.break-title {
+    font-size: clamp(43px, 11vw, 100px);
+    line-height: .9;
+    font-weight: 900;
+    letter-spacing: -5px;
+}
+
+.break-sub {
+    margin-top: 30px;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.break-button {
+    margin-top: 38px;
+    border: 1px solid var(--green);
+    color: var(--green);
+}
+
+/* =========================
+   LETTER
+========================= */
+
+#letter {
+    background: var(--cream);
+    color: var(--green);
+}
+
+.letter-container {
+    width: min(100% - 38px, 750px);
+    margin: auto;
+    padding: 70px 0;
+}
+
+.letter-date {
+    font-family: 'DM Mono', monospace;
+    color: #786d59;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+.letter h1 {
+    font-size: clamp(38px, 10vw, 76px);
+    line-height: .95;
+    letter-spacing: -4px;
+    margin-bottom: 40px;
+}
+
+.letter-body {
+    font-size: 16px;
+    line-height: 2;
+}
+
+.letter-body p {
+    margin-bottom: 25px;
+}
+
+.letter-ending {
+    margin-top: 55px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(7,28,18,.2);
+}
+
+.season-final {
+    font-size: clamp(45px, 12vw, 100px);
+    font-weight: 900;
+    line-height: .85;
+    letter-spacing: -5px;
+}
+
+.final-line {
+    margin-top: 22px;
+    font-size: 19px;
+    line-height: 1.5;
+}
+
+.final-love {
+    margin-top: 50px;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (min-width: 700px) {
+    .stat-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    body {
-        min-height: 100vh;
-        background:
-            radial-gradient(circle at 50% 35%, #1d4a36 0%, #0d2b20 35%, #061812 75%);
-        color: #f3e8cd;
-        font-family: Arial, Helvetica, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
+    .profile-main {
+        grid-template-columns: repeat(4, 1fr);
     }
 
-    .screen {
-        width: 100%;
-        min-height: 100vh;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 24px;
-        overflow: hidden;
+    .scout-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    /* subtle broadcast grid */
-    .screen::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: 0.08;
-        background-image:
-            linear-gradient(rgba(243,232,205,0.4) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(243,232,205,0.4) 1px, transparent 1px);
-        background-size: 70px 70px;
-        pointer-events: none;
+    .poem-list {
+        grid-template-columns: repeat(3, 1fr);
     }
 
-    .topbar {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(243,232,205,0.25);
-        padding-bottom: 14px;
-        font-size: 11px;
-        letter-spacing: 2px;
-        color: #bcae91;
+    .poem-body {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: min(100% - 28px, 1050px);
     }
 
-    .live {
-        color: #f3e8cd;
+    .archive-status {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .live::before {
-        content: "";
-        display: inline-block;
-        width: 7px;
-        height: 7px;
-        background: #f3e8cd;
-        border-radius: 50%;
-        margin-right: 8px;
+    .profile-main {
+        padding: 20px;
     }
 
-    .main {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        margin: auto;
+    .profile-photo {
+        margin: 0 20px 20px;
     }
-
-    .eyebrow {
-        font-size: 11px;
-        letter-spacing: 5px;
-        color: #bcae91;
-        margin-bottom: 22px;
-        text-transform: uppercase;
-    }
-
-    .dpl {
-        font-size: clamp(85px, 23vw, 190px);
-        line-height: 0.75;
-        font-weight: 900;
-        letter-spacing: -10px;
-        color: #f3e8cd;
-    }
-
-    .season {
-        margin-top: 28px;
-        font-size: clamp(28px, 7vw, 58px);
-        font-weight: 800;
-        letter-spacing: 8px;
-    }
-
-    .league {
-        margin-top: 12px;
-        font-family: Georgia, serif;
-        font-style: italic;
-        font-size: 18px;
-        letter-spacing: 3px;
-        color: #bcae91;
-    }
-
-    .status {
-        margin-top: 52px;
-        font-size: 11px;
-        letter-spacing: 3px;
-        color: #bcae91;
-    }
-
-    .status span {
-        color: #f3e8cd;
-    }
-
-    .enter {
-        margin-top: 28px;
-        padding: 15px 38px;
-        border: 1px solid rgba(243,232,205,0.55);
-        background: transparent;
-        color: #f3e8cd;
-        font-size: 12px;
-        font-weight: bold;
-        letter-spacing: 3px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .enter:hover {
-        background: #f3e8cd;
-        color: #0b241b;
-        transform: translateY(-2px);
-    }
-
-    .bottom {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        justify-content: space-between;
-        border-top: 1px solid rgba(243,232,205,0.25);
-        padding-top: 14px;
-        font-size: 10px;
-        letter-spacing: 2px;
-        color: #8f846e;
-    }
-
-    @media (max-width: 600px) {
-        .screen {
-            padding: 18px;
-        }
-
-        .topbar,
-        .bottom {
-            font-size: 8px;
-        }
-
-        .dpl {
-            letter-spacing: -6px;
-        }
-
-        .season {
-            letter-spacing: 5px;
-        }
-    }
+}
 </style>
 </head>
 
 <body>
 
-<div class="screen">
+<div class="scanlines"></div>
 
-    <div class="topbar">
-        <div class="live">LIVE BROADCAST</div>
-        <div>DPL // 2026</div>
+<!-- =========================================================
+     SCREEN 01 — OPENING
+========================================================= -->
+
+<section class="screen active" id="opening">
+    <div class="broadcast-bg"></div>
+    <div class="noise"></div>
+
+    <div class="container opening-inner">
+
+        <div class="dpl-small">DPL // OFFICIAL PLAYER ARCHIVE</div>
+
+        <div class="opening-title">DPL</div>
+
+        <div class="season">SEASON 02</div>
+        <div class="league-name">Dev Premier League</div>
+
+        <div class="archive-status">
+
+            <div class="status-cell">
+                <div class="status-label">Archive Status</div>
+                <div class="status-value">
+                    <span class="live-dot" style="display:inline-block;margin-right:6px;"></span>
+                    ACTIVE
+                </div>
+            </div>
+
+            <div class="status-cell">
+                <div class="status-label">Player Database</div>
+                <div class="status-value">02.09.2026</div>
+            </div>
+
+        </div>
+
+        <div class="enter-wrap">
+            <button class="btn" onclick="goTo('profile')">
+                Enter Archive →
+            </button>
+        </div>
+
     </div>
 
-    <main class="main">
+    <div class="page-number">01 / 12</div>
+</section>
 
-        <div class="eyebrow">
-            Player Database
+
+<!-- =========================================================
+     SCREEN 02 — PLAYER PROFILE
+========================================================= -->
+
+<section class="screen" id="profile">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // PLAYER DATABASE</span>
+            <span class="live"><span class="live-dot"></span> LIVE ARCHIVE</span>
         </div>
 
-        <div class="dpl">
-            DPL
+        <div class="profile-header">
+
+            <div>
+                <div class="eyebrow">Player Profile // 0019</div>
+                <h1 class="section-title">DEV</h1>
+                <p class="subtitle">JERSEY NO. 19</p>
+            </div>
+
+            <div class="jersey">19</div>
+
         </div>
 
-        <div class="season">
-            SEASON 02
+        <div class="profile-card">
+
+            <div class="profile-main">
+
+                <div>
+                    <div class="data-label">Team</div>
+                    <div class="data-value">Chennai Super Kings</div>
+                </div>
+
+                <div>
+                    <div class="data-label">Favourite Player</div>
+                    <div class="data-value">MS Dhoni</div>
+                </div>
+
+                <div>
+                    <div class="data-label">Current Status</div>
+                    <div class="data-value gold">Active</div>
+                </div>
+
+                <div>
+                    <div class="data-label">Primary Skill</div>
+                    <div class="data-value">Being Dev</div>
+                </div>
+
+            </div>
+
+            <div class="profile-photo">
+                PHOTO ARCHIVE SLOT<br><br>
+                YOUR PHOTO OF DEV CAN BE ADDED HERE
+            </div>
+
         </div>
 
-        <div class="league">
-            Dev Premier League
+        <div class="eyebrow" style="margin-top:42px;">Player Attributes</div>
+
+        <div class="attributes">
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Patience</div>
+                    <div class="bar"><div class="bar-fill" data-width="98%"></div></div>
+                </div>
+                <div class="rating">98</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Intelligence</div>
+                    <div class="bar"><div class="bar-fill" data-width="96%"></div></div>
+                </div>
+                <div class="rating">96</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Sense of Humour</div>
+                    <div class="bar"><div class="bar-fill" data-width="91%"></div></div>
+                </div>
+                <div class="rating">91</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Support</div>
+                    <div class="bar"><div class="bar-fill" data-width="100%"></div></div>
+                </div>
+                <div class="rating">100</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Clinginess</div>
+                    <div class="bar"><div class="bar-fill" data-width="97%"></div></div>
+                </div>
+                <div class="rating">97</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Child-like Behaviour</div>
+                    <div class="bar"><div class="bar-fill" data-width="100%"></div></div>
+                </div>
+                <div class="rating">100</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Comedy During Arguments</div>
+                    <div class="bar"><div class="bar-fill" data-width="14%"></div></div>
+                </div>
+                <div class="rating">14</div>
+            </div>
+
+            <div class="attribute">
+                <div>
+                    <div class="attribute-name">Confidence In That Comedy</div>
+                    <div class="bar"><div class="bar-fill" data-width="100%"></div></div>
+                </div>
+                <div class="rating">100</div>
+            </div>
+
         </div>
 
-        <div class="status">
-            ARCHIVE STATUS:
-            <span>ACTIVE</span>
+        <div class="next-row">
+            <span class="next-label">NEXT // SCOUTING REPORT</span>
+            <button class="btn" onclick="goTo('scouting')">Continue →</button>
         </div>
 
-        <button class="enter" onclick="enterLeague()">
-            ENTER
+    </div>
+
+    <div class="page-number">02 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 03 — SCOUTING REPORT
+========================================================= -->
+
+<section class="screen" id="scouting">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // SCOUTING DEPARTMENT</span>
+            <span>CONFIDENTIAL</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Internal Observation Report</div>
+            <h1 class="section-title">SCOUTING<br>REPORT</h1>
+        </div>
+
+        <div class="scout-list">
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 01</div>
+                <div class="scout-title">Social Behaviour</div>
+                <div class="scout-text">
+                    Becomes noticeably quieter around large groups.
+                </div>
+            </div>
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 02</div>
+                <div class="scout-title">Temperature Response</div>
+                <div class="scout-text">
+                    Frequently holds his shirt when feeling hot. Reason remains unexplained.
+                </div>
+            </div>
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 03</div>
+                <div class="scout-title">Conflict Response</div>
+                <div class="scout-text">
+                    Attempts humour when subject is angry. Success rate remains questionable.
+                </div>
+            </div>
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 04</div>
+                <div class="scout-title">De-escalation Protocol</div>
+                <div class="scout-text">
+                    When subject becomes angry, immediately switches to repeated use of the word “baby”.
+                </div>
+            </div>
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 05</div>
+                <div class="scout-title">Personality Variation</div>
+                <div class="scout-text">
+                    Displays significantly increased levels of clinginess, silliness and general child-like behaviour around one particular person.
+                </div>
+            </div>
+
+            <div class="scout">
+                <div class="scout-num">OBSERVATION 06</div>
+                <div class="scout-title">Care Protocol</div>
+                <div class="scout-text">
+                    Frequently checks whether Gaurika has eaten and whether she has had enough water.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="baby-box">
+
+            <div class="eyebrow">Emergency De-escalation Simulation</div>
+
+            <button class="btn" onclick="babyProtocol()">
+                Activate Protocol
+            </button>
+
+            <div class="baby-output" id="babyOutput"></div>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // CAREER STATISTICS</span>
+            <button class="btn" onclick="goTo('stats')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">03 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 04 — CAREER STATISTICS
+========================================================= -->
+
+<section class="screen" id="stats">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // CAREER STATISTICS</span>
+            <span>SEASON 02</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Official Career Record</div>
+            <h1 class="section-title">CAREER<br>STATISTICS</h1>
+        </div>
+
+        <div class="stat-grid">
+
+            <div class="big-stat">
+                <div class="big-number">~100</div>
+                <div class="big-label">POEMS WRITTEN</div>
+            </div>
+
+            <div class="big-stat">
+                <div class="big-number">80+</div>
+                <div class="big-label">LANGUAGES USED TO SAY “I LOVE YOU”</div>
+            </div>
+
+            <div class="big-stat">
+                <div class="big-number">100</div>
+                <div class="big-label">SUPPORT RATING</div>
+            </div>
+
+            <div class="big-stat">
+                <div class="big-number">0</div>
+                <div class="big-label">TIMES GIVING UP ON GAURIKA</div>
+            </div>
+
+        </div>
+
+        <div class="record-list">
+
+            <div class="record">
+                <span>Calls Gaurika</span>
+                <span>REGULARLY</span>
+            </div>
+
+            <div class="record">
+                <span>Talks to Gaurika</span>
+                <span>ALWAYS</span>
+            </div>
+
+            <div class="record">
+                <span>Checks whether Gaurika has eaten</span>
+                <span>ACTIVE</span>
+            </div>
+
+            <div class="record">
+                <span>Checks whether Gaurika drank water</span>
+                <span>ACTIVE</span>
+            </div>
+
+            <div class="record">
+                <span>Makes weird faces</span>
+                <span>TOO MANY</span>
+            </div>
+
+            <div class="record">
+                <span>Attempts jokes while Gaurika is angry</span>
+                <span>UNFORTUNATELY</span>
+            </div>
+
+            <div class="record">
+                <span>Knows how to make Gaurika smile</span>
+                <span>ELITE</span>
+            </div>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // INTERNATIONAL RECORD</span>
+            <button class="btn" onclick="goTo('international')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">04 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 05 — INTERNATIONAL RECORD
+========================================================= -->
+
+<section class="screen" id="international">
+    <div class="broadcast-bg"></div>
+
+    <div class="container international">
+
+        <div class="topbar">
+            <span>DPL // INTERNATIONAL RECORD</span>
+            <span>GLOBAL</span>
+        </div>
+
+        <div style="margin-top:45px;">
+            <div class="eyebrow">Language Department</div>
+
+            <div class="eighty">80+</div>
+
+            <div class="subtitle">LANGUAGES</div>
+        </div>
+
+        <div class="message-card">
+
+            <h3>ONE MESSAGE.</h3>
+
+            <p style="font-family:Georgia,serif;font-size:20px;">
+                “I love you.”
+            </p>
+
+            <p style="margin-top:20px;">
+                Some people say the same three words every night.
+                You kept finding new ways to say them.
+            </p>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // POETRY ARCHIVE</span>
+            <button class="btn" onclick="goTo('poetry')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">05 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 06 — POETRY ARCHIVE
+========================================================= -->
+
+<section class="screen" id="poetry">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // PERSONAL RECORD</span>
+            <span>ARCHIVED</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Personal Archive</div>
+            <h1 class="section-title">POETRY<br>ARCHIVE</h1>
+
+            <p class="section-intro">
+                A very small selection from approximately one hundred poems.
+                The archive has been deliberately restricted for quality control.
+            </p>
+        </div>
+
+        <div class="poem-list">
+
+            <div class="poem">
+                <div class="poem-head" onclick="togglePoem(this)">
+                    <div>
+                        <div class="poem-number">ARCHIVE 001</div>
+                        <div class="poem-title">No Worries, No Fear</div>
+                    </div>
+                    <div class="gold">+</div>
+                </div>
+
+                <div class="poem-body">
+No worries, no fear,
+why worry, my baby?
+You know I'm always here.
+
+My princess, you and I
+are always there to you,
+us two, us forever.
+
+You're like the beautiful princess.
+Oh my God,
+I love you so much.
+                </div>
+            </div>
+
+
+            <div class="poem">
+                <div class="poem-head" onclick="togglePoem(this)">
+                    <div>
+                        <div class="poem-number">ARCHIVE 002</div>
+                        <div class="poem-title">Every Universe</div>
+                    </div>
+                    <div class="gold">+</div>
+                </div>
+
+                <div class="poem-body">
+My love,
+no matter where we end up,
+it will always be together.
+
+Sunny days or cold weather,
+there's nothing that we can't do,
+my love.
+
+Forever, in every universe,
+it's only you
+and only you.
+
+The trust, the smile,
+the foreverness
+lies within us
+forever and ever and always.
+                </div>
+            </div>
+
+
+            <div class="poem">
+                <div class="poem-head" onclick="togglePoem(this)">
+                    <div>
+                        <div class="poem-number">ARCHIVE 003</div>
+                        <div class="poem-title">My Rose</div>
+                    </div>
+                    <div class="gold">+</div>
+                </div>
+
+                <div class="poem-body">
+My rose,
+
+through every life,
+through every medicine,
+these roses are beautiful,
+and so is my life.
+
+Come,
+will you be my wife?
+
+So when my future wife asks
+what it is that I really do,
+I say that
+it's that I really love you.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // CAREER ARCHIVE</span>
+            <button class="btn" onclick="goTo('timeline')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">06 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 07 — CAREER ARCHIVE
+========================================================= -->
+
+<section class="screen" id="timeline">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // HISTORICAL ARCHIVE</span>
+            <span>2018 — 2026</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Historical Record</div>
+            <h1 class="section-title">CAREER<br>ARCHIVE</h1>
+        </div>
+
+        <div class="timeline">
+
+            <div class="event">
+
+                <div class="event-date">2018 // FIRST RECORDED APPEARANCE</div>
+
+                <div class="event-title">Fourth Grade</div>
+
+                <div class="event-text">
+                    Two classmates. Two kids who didn't really understand
+                    what liking someone meant yet.
+                    Somehow, the beginning had already happened.
+                </div>
+
+            </div>
+
+
+            <div class="event">
+
+                <div class="event-date">YEARS 2—7 // INTERRUPTION</div>
+
+                <div class="event-title">Different Roads</div>
+
+                <div class="event-text">
+                    Growing up. COVID. Losing touch. Finding each other again.
+                    Losing touch again. Different circumstances, different people,
+                    different versions of yourselves.
+                </div>
+
+            </div>
+
+
+            <div class="event turning-point">
+
+                <div class="event-date">BUS 07 // TURNING POINT</div>
+
+                <div class="event-title">The Bus</div>
+
+                <div class="event-text">
+                    Morning rides. Dispersal rides.
+                    Different classes. Same bus.
+                    Conversations about everything and nothing.
+                    Teasing each other.
+                    Pretending to be frenemies.
+                    Slowly becoming the person the other wanted to tell everything to.
+                </div>
+
+                <div class="photo-placeholder">
+                    BUS 07 PHOTO ARCHIVE SLOT
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // AUGUST 2024</span>
+            <button class="btn" onclick="goTo('august')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">07 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 08 — AUGUST 2024
+========================================================= -->
+
+<section class="screen" id="august">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // SEASON ARCHIVE</span>
+            <span>AUGUST 2024</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Pre-Season Report</div>
+            <h1 class="section-title">AUGUST<br>2024</h1>
+
+            <p class="section-intro">
+                Status: unofficial.
+                Something was changing, even if neither player had officially admitted it yet.
+            </p>
+        </div>
+
+        <div class="timeline">
+
+            <div class="event">
+
+                <div class="event-date">BUS 07</div>
+
+                <div class="event-title">Small Things</div>
+
+                <div class="event-text">
+                    Sitting one seat apart.
+                    Turning around just to keep talking.
+                    Little touches.
+                    Teasing.
+                    Conversations that somehow lasted the entire ride.
+                </div>
+
+            </div>
+
+
+            <div class="event">
+
+                <div class="event-date">SCHOOL // CANTEEN DUTY</div>
+
+                <div class="event-title">Glances</div>
+
+                <div class="event-text">
+                    He had duty.
+                    You had absolutely no reason to keep being around there.
+                    Yet somehow, you kept finding yourself there.
+                </div>
+
+            </div>
+
+
+            <div class="event turning-point">
+
+                <div class="event-date">15.08.2024 // MATCH INCIDENT</div>
+
+                <div class="event-title">Independence Day</div>
+
+                <div class="event-text">
+                    A sapling. A principal. A girl. A completely unnecessary amount
+                    of jealousy.
+                    And one person who noticed exactly what was happening
+                    and cared enough to talk about it afterwards.
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="photo-placeholder">
+            AUGUST 2024 PHOTO ARCHIVE SLOT
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // CAREER-ALTERING EVENT</span>
+            <button class="btn" onclick="goTo('september')">02.09.2024 →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">08 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 09 — SEPTEMBER 2
+========================================================= -->
+
+<section class="screen" id="september">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // ARCHIVE LOCKED</span>
+            <span>02.09.2024</span>
+        </div>
+
+        <div style="margin-top:70px;text-align:center;">
+
+            <div class="eyebrow">Career-Altering Event</div>
+
+            <div style="
+                font-size:clamp(55px,15vw,150px);
+                font-weight:900;
+                letter-spacing:-7px;
+                line-height:.85;
+                color:var(--gold);
+            ">
+                02.09
+            </div>
+
+            <div style="
+                font-family:'DM Mono',monospace;
+                font-size:12px;
+                letter-spacing:5px;
+                margin-top:15px;
+            ">
+                2024
+            </div>
+
+            <div style="
+                margin:55px auto 0;
+                max-width:650px;
+                border-top:1px solid rgba(201,166,91,.35);
+                border-bottom:1px solid rgba(201,166,91,.35);
+                padding:35px 20px;
+            ">
+
+                <div class="data-label">Location</div>
+                <div class="data-value">BUS 07</div>
+
+                <div class="data-label" style="margin-top:25px;">Status</div>
+                <div class="data-value gold">CAREER-ALTERING EVENT</div>
+
+                <p style="
+                    margin-top:35px;
+                    line-height:2;
+                    color:var(--cream2);
+                    font-family:Georgia,serif;
+                    font-size:16px;
+                ">
+                    You were sitting in front of him.
+                    <br><br>
+                    You turned around.
+                    <br><br>
+                    And finally said what you'd been feeling.
+                </p>
+
+            </div>
+
+            <div style="
+                margin-top:45px;
+                font-size:clamp(28px,7vw,55px);
+                font-weight:900;
+                letter-spacing:-2px;
+            ">
+                SEASON 01<br>
+                <span class="gold">BEGAN.</span>
+            </div>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // TWO-YEAR RECORD</span>
+            <button class="btn" onclick="goTo('twoyears')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">09 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 10 — TWO YEARS
+========================================================= -->
+
+<section class="screen" id="twoyears">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // SEASON 02</span>
+            <span>02.09.2026</span>
+        </div>
+
+        <div style="margin-top:40px;">
+            <div class="eyebrow">Two-Year Record</div>
+            <h1 class="section-title">SEASON<br>TWO</h1>
+        </div>
+
+        <div class="scoreboard">
+
+            <div class="score-row">
+                <div class="score-name">YEARS TOGETHER</div>
+                <div class="score-value">02</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">YEARS KNOWN</div>
+                <div class="score-value">08</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">POEMS ARCHIVED</div>
+                <div class="score-value">~100</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">LANGUAGES</div>
+                <div class="score-value">80+</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">SUPPORT RECORD</div>
+                <div class="score-value">UNDEFEATED</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">GIVING UP</div>
+                <div class="score-value">0</div>
+            </div>
+
+            <div class="score-row">
+                <div class="score-name">MEMORIES</div>
+                <div class="score-value">∞</div>
+            </div>
+
+        </div>
+
+        <div style="
+            margin-top:45px;
+            padding:28px;
+            background:rgba(18,61,40,.4);
+            border:1px solid rgba(201,166,91,.25);
+        ">
+
+            <div class="eyebrow">Performance Notes</div>
+
+            <p style="line-height:1.9;color:var(--cream2);">
+                He smiles around you.<br>
+                He is himself around you.<br>
+                He supports you.<br>
+                He never gives up on you.<br>
+                And somehow he remains the worst comedian at exactly the wrong time.
+            </p>
+
+        </div>
+
+        <div class="next-row">
+            <span class="next-label">NEXT // FINAL SCORECARD</span>
+            <button class="btn" onclick="goTo('finalScore')">Continue →</button>
+        </div>
+
+    </div>
+
+    <div class="page-number">10 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 11 — FINAL SCORECARD
+========================================================= -->
+
+<section class="screen" id="finalScore">
+    <div class="broadcast-bg"></div>
+
+    <div class="container">
+
+        <div class="topbar">
+            <span>DPL // FINAL BROADCAST</span>
+            <span>SEASON 02</span>
+        </div>
+
+        <div style="margin-top:60px;text-align:center;">
+
+            <div class="eyebrow">Final Match Report</div>
+
+            <h1 class="section-title">
+                MATCH<br>
+                <span class="gold">COMPLETE.</span>
+            </h1>
+
+            <div style="
+                margin:50px auto 0;
+                max-width:650px;
+                border:1px solid rgba(201,166,91,.35);
+            ">
+
+                <div class="score-row">
+                    <div class="score-name">MATCH STATUS</div>
+                    <div class="score-value">COMPLETE</div>
+                </div>
+
+                <div class="score-row">
+                    <div class="score-name">CAREER STATUS</div>
+                    <div class="score-value">ONGOING</div>
+                </div>
+
+                <div class="score-row">
+                    <div class="score-name">FUTURE SEASONS</div>
+                    <div class="score-value" id="futureStatus">UNCONFIRMED</div>
+                </div>
+
+            </div>
+
+            <button class="btn" style="margin-top:45px;" onclick="confirmFuture()">
+                Check Future Status →
+            </button>
+
+            <div id="futureReveal" style="
+                display:none;
+                margin:45px auto 0;
+                max-width:600px;
+                font-size:clamp(30px,8vw,60px);
+                font-weight:900;
+                letter-spacing:-3px;
+            ">
+                CONFIRMED.
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="page-number">11 / 12</div>
+</section>
+
+
+<!-- =========================================================
+     SCREEN 12 — THE BROADCAST BREAKS
+========================================================= -->
+
+<section class="screen final-break" id="reveal">
+
+    <div class="break-inner">
+
+        <div class="break-small">
+            DPL BROADCAST // SIGNAL TERMINATED
+        </div>
+
+        <div class="break-title">
+            THIS WAS<br>
+            NEVER REALLY<br>
+            ABOUT CRICKET.
+        </div>
+
+        <div class="break-sub">
+            It was about you.
+        </div>
+
+        <button class="btn break-button" onclick="goTo('letter')">
+            Continue →
         </button>
 
-    </main>
-
-    <div class="bottom">
-        <div>PLAYER DATABASE // RESTRICTED</div>
-        <div>EST. 2024</div>
     </div>
 
-</div>
+</section>
+
+
+<!-- =========================================================
+     FINAL LETTER
+========================================================= -->
+
+<section class="screen" id="letter">
+
+    <div class="letter-container">
+
+        <div class="letter-date">
+            02.09.2026 // SEASON 02
+        </div>
+
+        <div class="letter">
+
+            <h1>
+                Happy 2nd Anniversary,<br>
+                my love. 🤍
+            </h1>
+
+            <div class="letter-body">
+
+                <p>
+                    I made all of this for you because I wanted to find some way
+                    to show you just how much you mean to me. And honestly,
+                    I don't think any website, any gift, or even all the words
+                    in the world could ever properly explain how much I love you.
+                </p>
+
+                <p>
+                    We've known each other for eight years, which still feels
+                    crazy to me sometimes. We were literally just two kids when
+                    our story started, and somehow, after everything that happened
+                    between then and now, we found our way back to each other.
+                </p>
+
+                <p>
+                    But these last two years have been different.
+                </p>
+
+                <p>
+                    These two years of being together, talking about absolutely
+                    everything, telling each other about our days, laughing at
+                    the stupidest things, fighting, making up, supporting each
+                    other and just being <em>us</em> have taught me what it
+                    actually means to love someone.
+                </p>
+
+                <p>
+                    You've taught me patience. You've taught me kindness.
+                    You've taught me how important it is to support someone and,
+                    most importantly, how to never give up on the person you love.
+                </p>
+
+                <p>
+                    And I think that's one of the things I love most about you.
+                </p>
+
+                <p>
+                    No matter how difficult things get, you've never been someone
+                    who simply gives up on me. You've always found a way to
+                    understand me, stand beside me and remind me that you believe
+                    in me.
+                </p>
+
+                <p>
+                    Our story started eight years ago, but somewhere along the way,
+                    you became so much more than just a person I love. You became
+                    the person I want to tell everything to, the person I want
+                    beside me when something amazing happens, and the person I
+                    naturally imagine when I think about my future.
+                </p>
+
+                <p>
+                    And if there's one thing I'm completely sure about, it's that
+                    <strong>I want there to be a lot more seasons of us.</strong>
+                </p>
+
+                <p>
+                    So, Dev—
+                </p>
+
+                <p>
+                    Thank you.
+                </p>
+
+                <p>
+                    Thank you for loving me the way you do.<br>
+                    Thank you for putting up with me. 😭<br>
+                    Thank you for supporting me even when I get annoyed by how
+                    much you support me.<br>
+                    Thank you for all the poems, all the calls, all the
+                    <em>“I love yous”</em> in languages I didn't even know existed,
+                    and all the little things you probably don't realise I notice.
+                </p>
+
+                <p>
+                    Thank you for being you.
+                </p>
+
+                <p>
+                    Our story has never been completely perfect, but somehow,
+                    <strong>it's always been ours.</strong>
+                    And I wouldn't trade that for anything.
+                </p>
+
+                <p>
+                    So here's to the little fourth-grade kids who had no idea
+                    what was coming.
+                </p>
+
+                <p>
+                    Here's to Bus 7.
+                </p>
+
+                <p>
+                    Here's to August 2024.
+                </p>
+
+                <p>
+                    Here's to <strong>02.09.2024.</strong>
+                </p>
+
+                <p>
+                    And here's to <strong>Season 02.</strong>
+                </p>
+
+                <p>
+                    Because if these last two years have taught me anything,
+                    it's that I don't want this to be the end of our story.
+                </p>
+
+                <p>
+                    <strong>
+                        I want all the seasons after this one too. 🤍
+                    </strong>
+                </p>
+
+            </div>
+
+            <div class="letter-ending">
+
+                <div class="season-final">
+                    SEASON<br>
+                    02
+                </div>
+
+                <div class="final-line">
+                    02.09.2026<br>
+                    <strong>Still us.</strong>
+                </div>
+
+                <div class="final-love">
+                    I love you so, so much.<br><br>
+                    Happy second anniversary, my love. 🤍
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
 
 <script>
-function enterLeague() {
-    alert("PLAYER PROFILE: DEV\n\nSeason 02 access granted.");
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function goTo(id) {
+
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    const target = document.getElementById(id);
+
+    if (target) {
+        target.classList.add('active');
+        window.scrollTo({
+            top: 0,
+            behavior: 'instant'
+        });
+
+        setTimeout(() => {
+            animateBars(target);
+        }, 100);
+    }
 }
+
+
+/* =========================================================
+   ATTRIBUTE ANIMATION
+========================================================= */
+
+function animateBars(screen) {
+
+    const bars = screen.querySelectorAll('.bar-fill');
+
+    bars.forEach(bar => {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = '0';
+
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 150);
+    });
+}
+
+
+/* =========================================================
+   BABY PROTOCOL
+========================================================= */
+
+function babyProtocol() {
+
+    const output = document.getElementById('babyOutput');
+
+    const messages = [
+        'BABY, BABY...',
+        'Attempting to calm subject...',
+        'Subject remains angry.',
+        'Increasing BABY frequency...',
+        'BABY, BABY, PLEASE...',
+        'Protocol status: QUESTIONABLY EFFECTIVE 😭'
+    ];
+
+    output.innerHTML = '';
+
+    let i = 0;
+
+    const interval = setInterval(() => {
+
+        output.innerHTML += messages[i] + '<br>';
+
+        i++;
+
+        if (i >= messages.length) {
+            clearInterval(interval);
+        }
+
+    }, 450);
+}
+
+
+/* =========================================================
+   POETRY
+========================================================= */
+
+function togglePoem(header) {
+
+    const poem = header.parentElement;
+
+    poem.classList.toggle('open');
+
+    const symbol = header.querySelector('.gold');
+
+    if (poem.classList.contains('open')) {
+        symbol.textContent = '−';
+    } else {
+        symbol.textContent = '+';
+    }
+}
+
+
+/* =========================================================
+   FINAL FUTURE REVEAL
+========================================================= */
+
+function confirmFuture() {
+
+    const status = document.getElementById('futureStatus');
+    const reveal = document.getElementById('futureReveal');
+
+    status.textContent = 'CONFIRMED';
+
+    reveal.style.display = 'block';
+
+    setTimeout(() => {
+
+        goTo('reveal');
+
+    }, 1800);
+}
+
+
+/* =========================================================
+   INITIAL ANIMATION
+========================================================= */
+
+window.addEventListener('load', () => {
+
+    const opening = document.getElementById('opening');
+
+    setTimeout(() => {
+        opening.style.opacity = '1';
+    }, 100);
+
+});
+
 </script>
 
 </body>
